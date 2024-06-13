@@ -9,4 +9,4 @@ const authorize = require("../middlewares/authorize");
 router.route("/").post([authorize, admin], createCategory);
 router.route("/").get(getCategories);
 
-modules.exports = router;
+module.exports = router;
