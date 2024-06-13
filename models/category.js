@@ -8,8 +8,7 @@ module.exports.Category = model(
       name: {
         type: String,
         required: true,
-        minlength: 3,
-        maxlength: 100,
+        unique: true,
       },
     },
     { timestamps: true }
