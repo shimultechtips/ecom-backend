@@ -24,7 +24,7 @@ module.exports.signUp = async (req, res) => {
       user: _.pick(result, ["_id", "name", "email"]),
     });
   } catch (error) {
-    return res.status(500).send("Something Failed");
+    return res.status(500).send("Something Failed!");
   }
 };
 
