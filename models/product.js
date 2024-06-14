@@ -28,7 +28,7 @@ module.exports.validate = (product) => {
     name: Joi.string().min(3).max(255).required(),
     description: Joi.string().max(2000).required(),
     price: Joi.number().required(),
-    quantity: Joi.number.required(),
+    quantity: Joi.number().required(),
     category: Joi.string().required(),
   });
   return schema.validate(product);
