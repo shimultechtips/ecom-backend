@@ -21,26 +21,6 @@ module.exports.createProduct = async (req, res) => {
     const product = new Product(fields);
 
     if (files.photo) {
-      // fs.readFile(files.photo.path, (err, data) => {
-      //   if (err) return res.status(400).send("Problem In File Data!");
-      //   product.photo.data = data;
-      //   product.photo.contentType = files.photo.type;
-      //   product.save((err, result) => {
-      //     if (err) return res.status(500).send("Internal Server Error!");
-      //     else
-      //       return res.status(201).send({
-      //         message: "Product Created Successfully!",
-      //         data: _.pick(result, [
-      //           "name",
-      //           "description",
-      //           "price",
-      //           "category",
-      //           "quantity",
-      //         ]),
-      //       });
-      //   });
-      // });
-
       fs.readFile(files.photo[0].filepath, async (err, data) => {
         if (err) return res.status(400).send("Problem in file data!");
         product.photo.data = data;
