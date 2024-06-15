@@ -86,4 +86,55 @@ module.exports.getPhoto = async (req, res) => {
   return res.status(200).send(product.photo.data);
 };
 
-module.exports.updateProductById = async (req, res) => {};
+module.exports.updateProductById = async (req, res) => {
+  const productId = req.params.id;
+  const product = await Product.findById(productId);
+  let form = new formidable.IncomingForm();
+  form.keepExtensions = true;
+  form.parse(req, async (err, fields, files) => {
+    if (err) return res.status(400).send("Something Wrong!");
+
+    for (key in fields) {
+      fields[key] = fields[key][0];
+    }
+
+    const updatedFields = _.pick(fields, [
+      "name",
+      "description",
+      "price",
+      "category",
+      "quantity",
+    ]);
+    _.assignIn(product, updatedFields);
+
+    if (files.photo) {
+      fs.readFile(files.photo[0].filepath, async (err, data) => {
+        if (err) return res.status(400).send("Something Wrong!");
+        product.photo.data = data;
+        product.photo.contentType = files.photo.type;
+
+        try {
+          await product.save();
+          return res.status(201).send({
+            message: "Product Updated Successfully!",
+          });
+        } catch (error) {
+          res
+            .status(500)
+            .send(`Internal Server error!: ${JSON.stringify(error)}`);
+        }
+      });
+    } else {
+      try {
+        await product.save();
+        return res.status(201).send({
+          message: "Product Updated Successfully!",
+        });
+      } catch (error) {
+        res
+          .status(500)
+          .send(`Internal Server error!: ${JSON.stringify(error)}`);
+      }
+    }
+  });
+};
