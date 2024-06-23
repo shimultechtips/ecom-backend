@@ -9,7 +9,7 @@ const {
 const authorize = require("../middlewares/authorize");
 
 router
-  .route("./")
+  .route("/")
   .get(authorize, getCartItem)
   .post(authorize, createCartItem)
   .put(authorize, updateCartItem);
