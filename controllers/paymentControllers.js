@@ -32,6 +32,7 @@ module.exports.initPayment = async (req, res) => {
     currency: "BDT", // Must be three character string
     tran_id: tran_id, // Unique Transaction id
     emi_option: 0, // 1 or 0
+
     // multi_card_name: "internetbank", // Do not Use! If you do not customize the gateway list,
     // allowed_bin: "371598,371599,376947,376948,376949", // Do not Use! If you do not control on transaction
     // emi_max_inst_option: 3, // Max instalment Option
