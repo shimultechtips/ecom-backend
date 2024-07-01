@@ -117,7 +117,7 @@ module.exports.initPayment = async (req, res) => {
 module.exports.paymentSuccess = async (req, res) => {
   // res.sendFile(path.join(__basedir + "/public/success.html"));
   const successFilePath = path.resolve(__basedir, "public", "success.html");
-  console.log(successFilePath); // For debugging purposes
+  console.log("Success Path : ", successFilePath); // For debugging purposes
   res.sendFile(successFilePath);
 };
 
