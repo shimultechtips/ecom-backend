@@ -2,9 +2,9 @@ const router = require("express").Router();
 const {
   initPayment,
   ipn,
-  paymentSuccess,
-  paymentCancel,
-  paymentFail,
+  // paymentSuccess,
+  // paymentCancel,
+  // paymentFail,
 } = require("../controllers/paymentControllers");
 const authorize = require("../middlewares/authorize");
 
