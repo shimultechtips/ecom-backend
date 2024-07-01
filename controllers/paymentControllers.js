@@ -3,7 +3,7 @@ const PaymentSession = require("ssl-commerz-node").PaymentSession;
 const { Profile } = require("../models/profile");
 const { Order } = require("../models/order");
 const { Payment } = require("../models/payment");
-const path = require("path");
+const path = require("node:path");
 
 module.exports.ipn = async (req, res) => {
   const payment = new Payment(req.body);
