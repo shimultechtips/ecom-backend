@@ -3,6 +3,7 @@ const PaymentSession = require("ssl-commerz-node").PaymentSession;
 const { Profile } = require("../models/profile");
 const { Order } = require("../models/order");
 const { Payment } = require("../models/payment");
+const path = require("path");
 
 module.exports.ipn = async (req, res) => {
   const payment = new Payment(req.body);
@@ -46,9 +47,9 @@ module.exports.initPayment = async (req, res) => {
 
   // Set the urls
   payment.setUrls({
-    success: "yoursite.com/success", // If payment Succeed
-    fail: "yoursite.com/fail", // If payment failed
-    cancel: "yoursite.com/cancel", // If user cancel payment
+    success: "https://ecom-backend-topaz.vercel.app/api/payment/success", // If payment Succeed
+    fail: "https://ecom-backend-topaz.vercel.app/api/payment/fail", // If payment failed
+    cancel: "https://ecom-backend-topaz.vercel.app/api/payment/cancel", // If user cancel payment
     ipn: "https://ecom-backend-topaz.vercel.app/api/payment/ipn", // SSLCommerz will send http post request in this link
   });
 
@@ -111,4 +112,16 @@ module.exports.initPayment = async (req, res) => {
     await order.save();
   }
   return res.status(200).send(response);
+};
+
+module.exports.paymentSuccess = async (req, res) => {
+  res.sendFile(path.join(__basedir + "public/success.html"));
+};
+
+module.exports.paymentFail = async (req, res) => {
+  res.sendFile(path.join(__basedir + "public/fail.html"));
+};
+
+module.exports.paymentCancel = async (req, res) => {
+  res.sendFile(path.join(__basedir + "public/cancel.html"));
 };
