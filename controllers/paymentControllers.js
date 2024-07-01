@@ -47,7 +47,7 @@ module.exports.initPayment = async (req, res) => {
 
   // Set the urls
   payment.setUrls({
-    success: "https://ecom-backend-topaz.vercel.app/api/payment/succes", // If payment Succeed
+    success: "https://ecom-backend-topaz.vercel.app/api/payment/success", // If payment Succeed
     fail: "https://ecom-backend-topaz.vercel.app/api/payment/fail", // If payment failed
     cancel: "https://ecom-backend-topaz.vercel.app/api/payment/cancel", // If user cancel payment
     ipn: "https://ecom-backend-topaz.vercel.app/api/payment/ipn", // SSLCommerz will send http post request in this link
