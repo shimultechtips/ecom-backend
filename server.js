@@ -1,8 +1,8 @@
 require("dotenv/config");
-const mongoose = require("mongoose");
 const app = require("./app");
+const mongoose = require("mongoose");
 
-// global.__basedir = __dirname;
+global.__basedir = __dirname;
 
 const DB = process.env.MONGODB_SERVER.replace(
   "<PASSWORD>",
