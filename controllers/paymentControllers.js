@@ -115,14 +115,14 @@ module.exports.initPayment = async (req, res) => {
 };
 
 module.exports.paymentSuccess = async (req, res) => {
-  res.sendFile(path.join(__basedir + "public/success.html"));
-  console.log(path.join(__basedir + "public/success.html"));
+  res.sendFile(path.join(__basedir + "/public/success.html"));
+  console.log(path.join(__basedir + "/public/success.html"));
 };
 
 module.exports.paymentFail = async (req, res) => {
-  res.sendFile(path.join(__basedir + "public/fail.html"));
+  res.sendFile(path.join(__basedir + "/public/fail.html"));
 };
 
 module.exports.paymentCancel = async (req, res) => {
-  res.sendFile(path.join(__basedir + "public/cancel.html"));
+  res.sendFile(path.join(__basedir + "/public/cancel.html"));
 };
