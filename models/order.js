@@ -5,7 +5,7 @@ module.exports.Order = model(
   "Order",
   Schema({
     cartItems: [CartItemSchema],
-    transcation_id: {
+    transaction_id: {
       type: String,
       unique: true,
     },
