@@ -2,7 +2,6 @@ const _ = require("lodash");
 const { CartItem } = require("../models/cartItem");
 
 module.exports.createCartItem = async (req, res) => {
-  console.log(req.body);
   let { price, product } = _.pick(req.body, ["price", "product"]);
   const item = await CartItem.findOne({
     user: req.user._id,
