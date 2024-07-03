@@ -120,24 +120,74 @@ module.exports.paymentSuccess = async (req, res) => {
   //   console.log("Success Path : ", successFilePath); // For debugging purposes
   //   res.sendFile(successFilePath);
 
-  const successPage = `<div>
-      <p>Payment Was Successful!</p>
-      <a href="https://ecom-frontend-steel.vercel.app/">Go Back To Home!</a>
+  const successPage = `<div style="margin: 20px 0px; text-align: center">
+      <p style="font-size: 25px; color: green">Your Payment Was Successful!</p>
+      <a
+        style="
+          color: green;
+          text-decoration: none;
+          font-size: 20px;
+          border: 2px solid gray;
+          border-radius: 10px;
+          padding: 10px;
+          font-weight: bold;
+        "
+        href="https://ecom-frontend-steel.vercel.app/"
+        >Go Back To Home</a
+      >
     </div>`;
 
   res.send(successPage);
 };
 
 module.exports.paymentFail = async (req, res) => {
-  const failFilePath = path.resolve(__basedir, "public", "fail.html");
-  console.log(failFilePath); // For debugging purposes
-  res.sendFile(failFilePath);
+  // const failFilePath = path.resolve(__basedir, "public", "fail.html");
+  // console.log(failFilePath); // For debugging purposes
+  // res.sendFile(failFilePath);
 
   // res.sendFile(path.join(__basedir + "/public/fail.html"));
+
+  const failPage = `<div style="margin: 20px 0px; text-align: center">
+      <p style="font-size: 25px; color: red">Your Payment Has Failed!</p>
+      <a
+        style="
+          color: green;
+          text-decoration: none;
+          font-size: 20px;
+          border: 2px solid gray;
+          border-radius: 10px;
+          padding: 10px;
+          font-weight: bold;
+        "
+        href="https://ecom-frontend-steel.vercel.app/cart"
+        >Go Back To Cart</a
+      >
+    </div>`;
+
+  res.send(failPage);
 };
 
 module.exports.paymentCancel = async (req, res) => {
-  const cancelFilePath = path.resolve(__basedir, "public", "cancel.html");
-  console.log(cancelFilePath); // For debugging purposes
-  res.sendFile(cancelFilePath);
+  // const cancelFilePath = path.resolve(__basedir, "public", "cancel.html");
+  // console.log(cancelFilePath); // For debugging purposes
+  // res.sendFile(cancelFilePath);
+
+  const cancelPage = `<div style="margin: 20px 0px; text-align: center">
+      <p style="font-size: 25px; color: red">Your Payment Has Canceled!</p>
+      <a
+        style="
+          color: green;
+          text-decoration: none;
+          font-size: 20px;
+          border: 2px solid gray;
+          border-radius: 10px;
+          padding: 10px;
+          font-weight: bold;
+        "
+        href="https://ecom-frontend-steel.vercel.app/cart"
+        >Go Back To Cart</a
+      >
+    </div>`;
+
+  res.send(cancelPage);
 };
