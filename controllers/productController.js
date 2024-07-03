@@ -52,7 +52,7 @@ module.exports.createProduct = async (req, res) => {
 module.exports.getProducts = async (req, res) => {
   // api/product?ordr=desc&sortBy=name&limit=10
   // console.log(req.query);
-  let order = req.query.order === "desc" ? -1 : 1;
+  let order = req.query.order === "descending" ? -1 : 1;
   let sortBy = req.query.sortBy ? req.query.sortBy : "_id";
   let limit = req.query.limit ? parseInt(req.query.limit) : 10;
   const products = await Product.find()
@@ -152,7 +152,7 @@ module.exports.updateProductById = async (req, res) => {
 // };
 
 module.exports.filterProducts = async (req, res) => {
-  let order = req.body.order === "desc" ? -1 : 1;
+  let order = req.body.order === "descending" ? -1 : 1;
   let sortBy = req.body.sortBy ? req.body.sortBy : "_id";
   let limit = req.body.limit ? parseInt(req.body.limit) : 10;
   let skip = parseInt(req.body.skip);
