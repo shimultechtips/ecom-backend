@@ -116,9 +116,18 @@ module.exports.initPayment = async (req, res) => {
 
 module.exports.paymentSuccess = async (req, res) => {
   // res.sendFile(path.join(__basedir + "/public/success.html"));
-  const successFilePath = path.resolve(__basedir, "public", "success.html");
-  console.log("Success Path : ", successFilePath); // For debugging purposes
-  res.sendFile(successFilePath);
+  //   const successFilePath = path.resolve(__basedir, "public", "success.html");
+  //   console.log("Success Path : ", successFilePath); // For debugging purposes
+  //   res.sendFile(successFilePath);
+
+  const successPage = (
+    <div>
+      <p>Payment Was Successful!</p>
+      <a href="https://ecom-frontend-steel.vercel.app/">Go Back To Home!</a>
+    </div>
+  );
+
+  res.send(successPage);
 };
 
 module.exports.paymentFail = async (req, res) => {
