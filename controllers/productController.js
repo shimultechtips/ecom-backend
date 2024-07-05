@@ -23,6 +23,8 @@ module.exports.createProduct = async (req, res) => {
     if (files.photo) {
       fs.readFile(files.photo[0].filepath, async (err, data) => {
         if (err) return res.status(400).send("Problem in file data!");
+        product.total_rating = 0;
+        product.sold = 0;
         product.photo.data = data;
         product.photo.contentType = files.photo.type;
         try {

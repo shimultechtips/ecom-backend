@@ -14,6 +14,8 @@ module.exports.Product = model(
         required: true,
       },
       quantity: Number,
+      sold: Number,
+      total_rating: Number,
       photo: {
         data: Buffer,
         contentType: String,
