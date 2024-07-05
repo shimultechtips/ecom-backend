@@ -141,18 +141,6 @@ module.exports.updateProductById = async (req, res) => {
   });
 };
 
-// Filter Products
-// const body = {
-//   order: "desc",
-//   sortBy: "price",
-//   limit: 6,
-//   skip: 10,
-//   filters: {
-//     price: [300, 1000],
-//     category: ["sd;lfjasdiofj0", "sdfguashguh", "asdlkuhsdui"],
-//   },
-// };
-
 module.exports.filterProducts = async (req, res) => {
   let order = req.body.order === "descending" ? -1 : 1;
   let sortBy = req.body.sortBy ? req.body.sortBy : "_id";
@@ -178,10 +166,12 @@ module.exports.filterProducts = async (req, res) => {
           $in: filters["category"],
         };
       }
+
+      if (key === "name") {
+        args["name"] = new RegExp(filters["name"], "i");
+      }
     }
   }
-
-  // console.log(args);
 
   const products = await Product.find(args)
     .select({ photo: 0 })
@@ -191,4 +181,45 @@ module.exports.filterProducts = async (req, res) => {
     .limit(limit);
 
   return res.status(200).send(products);
+};
+
+module.exports.updateTotalRating = async (req, res) => {
+  const productId = req.params.id;
+  const product = await Product.findById(productId);
+
+  product.total_rating = req.body.total_rating;
+
+  try {
+    await product.save();
+    return res.status(201).send("Total Rating Updated!");
+  } catch (error) {
+    res.status(500).send(`Internal Server error!: ${JSON.stringify(error)}`);
+  }
+};
+
+module.exports.updateSoldAndQuantity = async (req, res) => {
+  const productId = req.params.id;
+  const product = await Product.findById(productId);
+
+  product.sold = req.body.sold;
+  product.quantity = req.body.quantity;
+
+  try {
+    await product.save();
+    return res.status(201).send("Sold And Quantity Updated!");
+  } catch (error) {
+    res.status(500).send(`Internal Server error!: ${JSON.stringify(error)}`);
+  }
+};
+
+module.exports.getProductsBySearch = async (req, res) => {
+  const { name } = req.query;
+  try {
+    const products = await Product.find({ name: new RegExp(name, "i") })
+      .select({ photo: 0 })
+      .limit(2);
+    res.status(200).send(products);
+  } catch (error) {
+    res.status(500).send("Getting Products By Searching Error!");
+  }
 };
