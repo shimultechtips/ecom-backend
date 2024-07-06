@@ -7,6 +7,7 @@ const paymentRouter = require("../routers/paymentRouter");
 const purchaseRouter = require("../routers/purchaseRouter");
 const reviewRouter = require("../routers/reviewRouter");
 const discountRouter = require("../routers/discountRouter");
+const discountPercentageRouter = require("../routers/discountPercentageRouter");
 
 module.exports = (app) => {
   app.use("/api/user", userRouter);
@@ -18,4 +19,5 @@ module.exports = (app) => {
   app.use("/api/purchase", purchaseRouter);
   app.use("/api/review", reviewRouter);
   app.use("/api/discount", discountRouter);
+  app.use("/api/discountpercentage", discountPercentageRouter);
 };

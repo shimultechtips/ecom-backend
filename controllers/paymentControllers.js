@@ -4,6 +4,7 @@ const { Profile } = require("../models/profile");
 const { Order } = require("../models/order");
 const { Payment } = require("../models/payment");
 const path = require("node:path");
+const { DiscountPercentage } = require("../models/discountPercentage");
 
 module.exports.ipn = async (req, res) => {
   const payment = new Payment(req.body);
@@ -25,6 +26,8 @@ module.exports.initPayment = async (req, res) => {
   const userId = req.user._id;
   const cartItems = await CartItem.find({ user: userId });
   const profile = await Profile.findOne({ user: userId });
+  const discountPercentage = await DiscountPercentage.findOne({ user: userId });
+  let discountPrice;
 
   const { address1, address2, city, state, postcode, country, phone } = profile;
 
@@ -32,10 +35,9 @@ module.exports.initPayment = async (req, res) => {
     .map((item) => item.count * item.price)
     .reduce((a, b) => a + b, 0);
 
-  let discountPrice;
-
-  if (req.query.discount !== "undefined") {
-    discountPrice = req.query.discount;
+  if (discountPercentage) {
+    discountPrice =
+      total_amount - (total_amount * discountPercentage.percentage) / 100;
   } else {
     discountPrice = total_amount;
   }
@@ -119,10 +121,28 @@ module.exports.initPayment = async (req, res) => {
     order.sessionKey = response["sessionkey"];
     await order.save();
   }
+
+  try {
+    await DiscountPercentage.deleteOne({
+      user: userId,
+    });
+  } catch (err) {
+    console.log(err.message);
+  }
+
   return res.status(200).send(response);
 };
 
 module.exports.paymentSuccess = async (req, res) => {
+  const userId = req.user._id;
+  console.log(req.user._id);
+
+  const discountPercentage = await DiscountPercentage.deleteOne({
+    user: userId,
+  });
+
+  console.log(discountPercentage);
+
   // res.sendFile(path.join(__basedir + "/public/success.html"));
   //   const successFilePath = path.resolve(__basedir, "public", "success.html");
   //   console.log("Success Path : ", successFilePath); // For debugging purposes
