@@ -10,7 +10,7 @@ module.exports.Discount = model(
         unique: true,
       },
       percentage: {
-        type: String,
+        type: Number,
         required: true,
         unique: true,
       },

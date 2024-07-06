@@ -32,6 +32,14 @@ module.exports.initPayment = async (req, res) => {
     .map((item) => item.count * item.price)
     .reduce((a, b) => a + b, 0);
 
+  let discountPrice;
+
+  if (req.query.discount !== "undefined") {
+    discountPrice = req.query.discount;
+  } else {
+    discountPrice = total_amount;
+  }
+
   const total_item = cartItems
     .map((item) => item.count)
     .reduce((a, b) => a + b, 0);
@@ -55,7 +63,7 @@ module.exports.initPayment = async (req, res) => {
 
   // Set order details
   payment.setOrderInfo({
-    total_amount: total_amount, // Number field
+    total_amount: discountPrice, // Number field
     currency: "BDT", // Must be three character string
     tran_id: tran_id, // Unique Transaction id
     emi_option: 0, // 1 or 0
