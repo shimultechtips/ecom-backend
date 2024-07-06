@@ -155,7 +155,7 @@ module.exports.paymentSuccess = async (req, res) => {
           color: green;
           text-decoration: none;
           font-size: 20px;
-          border: 2px solid gray;
+          border: 2px solid #ced4da;
           border-radius: 10px;
           padding: 10px;
           font-weight: bold;
@@ -182,7 +182,7 @@ module.exports.paymentFail = async (req, res) => {
           color: green;
           text-decoration: none;
           font-size: 20px;
-          border: 2px solid gray;
+          border: 2px solid #ced4da;
           border-radius: 10px;
           padding: 10px;
           font-weight: bold;
@@ -207,7 +207,7 @@ module.exports.paymentCancel = async (req, res) => {
           color: green;
           text-decoration: none;
           font-size: 20px;
-          border: 2px solid gray;
+          border: 2px solid #ced4da;
           border-radius: 10px;
           padding: 10px;
           font-weight: bold;
