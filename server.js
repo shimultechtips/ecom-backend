@@ -4,12 +4,12 @@ const mongoose = require("mongoose");
 
 global.__basedir = __dirname;
 
-// const DB = process.env.MONGODB_SERVER.replace(
-//   "<PASSWORD>",
-//   process.env.DB_PASSWORD
-// );
+const DB = process.env.MONGODB_SERVER.replace(
+  "<PASSWORD>",
+  process.env.DB_PASSWORD
+);
 
-const DB = process.env.MONGODB_URL_LOCAL;
+// const DB = process.env.MONGODB_URL_LOCAL;
 
 mongoose
   .connect(DB)

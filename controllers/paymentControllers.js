@@ -14,6 +14,14 @@ module.exports.ipn = async (req, res) => {
       { transaction_id: tran_id },
       { status: "Complete" }
     );
+
+    order.cartItems.map((item) => {
+      console.log("Product Id : ", item.product);
+      console.log("Product Count : ", item.count);
+    });
+
+    // console.log(order.cartItems);
+
     await CartItem.deleteMany(order.cartItems);
   } else {
     await Order.deleteOne({ transaction_id: tran_id });
