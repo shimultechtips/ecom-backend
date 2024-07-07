@@ -4,7 +4,8 @@ const { Payment } = require("../models/payment");
 module.exports.getPurchaseHistory = async (req, res) => {
   const purchaseHistory = await Order.find({
     user: req.user._id,
-  });
+    status: "Complete",
+  }).sort({ createdAt: -1 });
 
   return res.status(200).send(purchaseHistory);
 };

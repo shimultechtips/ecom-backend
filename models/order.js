@@ -29,6 +29,8 @@ module.exports.Order = model(
         ref: "User",
       },
       sessionKey: String,
+      gateWayURL: String,
+      amountToBePaid: Number,
     },
     { timestamps: true }
   )

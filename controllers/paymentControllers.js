@@ -2,31 +2,71 @@ const { CartItem } = require("../models/cartItem");
 const PaymentSession = require("ssl-commerz-node").PaymentSession;
 const { Profile } = require("../models/profile");
 const { Order } = require("../models/order");
+const { Product } = require("../models/product");
 const { Payment } = require("../models/payment");
 const path = require("node:path");
 const { DiscountPercentage } = require("../models/discountPercentage");
+const axios = require("axios");
 
 module.exports.ipn = async (req, res) => {
-  const payment = new Payment(req.body);
-  const tran_id = payment["tran_id"];
-  if (payment["status"] === "VALID") {
-    const order = await Order.updateOne(
-      { transaction_id: tran_id },
-      { status: "Complete" }
-    );
+  const val_id = req.body.val_id;
+  const store_id = process.env.STORE_ID;
+  const store_passwd = process.env.STORE_PASSWORD;
 
-    order.cartItems.map((item) => {
-      console.log("Product Id : ", item.product);
-      console.log("Product Count : ", item.count);
+  axios
+    .get(
+      "https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php",
+      {
+        params: {
+          val_id: val_id,
+          store_id: store_id,
+          store_passwd: store_passwd,
+        },
+      }
+    )
+    .then(async (response) => {
+      const payment = new Payment(req.body);
+      const tran_id = payment["tran_id"];
+
+      if (payment["status"] === "VALID") {
+        const order = await Order.updateOne(
+          { transaction_id: tran_id },
+          { status: "Complete" }
+        );
+
+        const orderItems = await Order.findOne({ transaction_id: tran_id });
+
+        orderItems.cartItems.map(async (item) => {
+          const product = await Product.findOne({ _id: item.product }).select({
+            quantity: 1,
+            sold: 1,
+          });
+
+          product.quantity = product.quantity - item.count;
+          product.sold = product.sold + item.count;
+
+          try {
+            await product.save();
+          } catch (err) {
+            console.log("product Save Failed : ", err);
+          }
+        });
+
+        // await CartItem.deleteMany(order.cartItems);
+      } else {
+        await Order.deleteOne({ transaction_id: tran_id });
+      }
+
+      try {
+        await payment.save();
+      } catch (err) {
+        console.log(err);
+      }
+    })
+    .catch((err) => {
+      console.log("Validation Error : ", err);
     });
 
-    // console.log(order.cartItems);
-
-    await CartItem.deleteMany(order.cartItems);
-  } else {
-    await Order.deleteOne({ transaction_id: tran_id });
-  }
-  await payment.save();
   return res.status(200).send("IPN");
 };
 
@@ -127,7 +167,16 @@ module.exports.initPayment = async (req, res) => {
   });
   if (response.status === "SUCCESS") {
     order.sessionKey = response["sessionkey"];
-    await order.save();
+    order.gateWayURL = response["GatewayPageURL"];
+    order.amountToBePaid = discountPrice;
+
+    try {
+      await order.save();
+    } catch (err) {
+      console.log(err);
+    }
+
+    await CartItem.deleteMany({ user: userId });
   }
 
   try {
@@ -142,15 +191,6 @@ module.exports.initPayment = async (req, res) => {
 };
 
 module.exports.paymentSuccess = async (req, res) => {
-  const userId = req.user._id;
-  console.log(req.user._id);
-
-  const discountPercentage = await DiscountPercentage.deleteOne({
-    user: userId,
-  });
-
-  console.log(discountPercentage);
-
   // res.sendFile(path.join(__basedir + "/public/success.html"));
   //   const successFilePath = path.resolve(__basedir, "public", "success.html");
   //   console.log("Success Path : ", successFilePath); // For debugging purposes
@@ -168,8 +208,8 @@ module.exports.paymentSuccess = async (req, res) => {
           padding: 10px;
           font-weight: bold;
         "
-        href="https://ecom-frontend-steel.vercel.app/"
-        >Go Back To Home</a
+        href="https://ecom-frontend-steel.vercel.app/user/dashboard"
+        >Go Back To Dashboard</a
       >
     </div>`;
 
@@ -195,8 +235,9 @@ module.exports.paymentFail = async (req, res) => {
           padding: 10px;
           font-weight: bold;
         "
-        href="https://ecom-frontend-steel.vercel.app/cart"
-        >Go Back To Cart</a
+                href="https://ecom-frontend-steel.vercel.app/user/dashboard"
+
+        >Go Back To Dashboard</a
       >
     </div>`;
 
@@ -220,8 +261,8 @@ module.exports.paymentCancel = async (req, res) => {
           padding: 10px;
           font-weight: bold;
         "
-        href="https://ecom-frontend-steel.vercel.app/cart"
-        >Go Back To Cart</a
+        href="https://ecom-frontend-steel.vercel.app/user/dashboard"
+        >Go Back To Dashboard</a
       >
     </div>`;
 
