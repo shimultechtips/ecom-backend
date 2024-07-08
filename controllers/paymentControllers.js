@@ -9,63 +9,69 @@ const { DiscountPercentage } = require("../models/discountPercentage");
 const axios = require("axios");
 
 module.exports.ipn = async (req, res) => {
-  const val_id = req.body.val_id;
-  const store_id = process.env.STORE_ID;
-  const store_passwd = process.env.STORE_PASSWORD;
+  if (req.body.status === "VALID") {
+    const val_id = req.body.val_id;
+    const store_id = process.env.STORE_ID;
+    const store_passwd = process.env.STORE_PASSWORD;
 
-  axios
-    .get(
-      "https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php",
-      {
-        params: {
-          val_id: val_id,
-          store_id: store_id,
-          store_passwd: store_passwd,
-        },
-      }
-    )
-    .then(async (response) => {
-      const payment = new Payment(req.body);
-      const tran_id = payment["tran_id"];
+    await axios
+      .get(
+        "https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php",
+        {
+          params: {
+            val_id: val_id,
+            store_id: store_id,
+            store_passwd: store_passwd,
+          },
+        }
+      )
+      .then(async (response) => {
+        const payment = new Payment(req.body);
+        const tran_id = payment["tran_id"];
 
-      if (payment["status"] === "VALID") {
-        const order = await Order.updateOne(
-          { transaction_id: tran_id },
-          { status: "Complete" }
-        );
+        if (payment["status"] === "VALID") {
+          const order = await Order.updateOne(
+            { transaction_id: tran_id },
+            { status: "Complete" }
+          );
 
-        const orderItems = await Order.findOne({ transaction_id: tran_id });
+          const orderItems = await Order.findOne({ transaction_id: tran_id });
 
-        orderItems.cartItems.map(async (item) => {
-          const product = await Product.findOne({ _id: item.product }).select({
-            quantity: 1,
-            sold: 1,
+          orderItems.cartItems.map(async (item) => {
+            const product = await Product.findOne({ _id: item.product }).select(
+              {
+                quantity: 1,
+                sold: 1,
+              }
+            );
+
+            product.quantity = product.quantity - item.count;
+            product.sold = product.sold + item.count;
+
+            try {
+              await product.save();
+            } catch (err) {
+              console.log("product Save Failed : ", err);
+            }
           });
 
-          product.quantity = product.quantity - item.count;
-          product.sold = product.sold + item.count;
+          // await CartItem.deleteMany(order.cartItems);
+        } else {
+          await Order.deleteOne({ transaction_id: tran_id });
+        }
 
-          try {
-            await product.save();
-          } catch (err) {
-            console.log("product Save Failed : ", err);
-          }
-        });
-
-        // await CartItem.deleteMany(order.cartItems);
-      } else {
-        await Order.deleteOne({ transaction_id: tran_id });
-      }
-
-      try {
-        await payment.save();
-      } catch (err) {
-        console.log(err);
-      }
-    })
-    .catch((err) => {
-      console.log("Validation Error : ", err);
-    });
+        try {
+          await payment.save();
+        } catch (err) {
+          console.log(err);
+        }
+      })
+      .catch((err) => {
+        console.log("Validation Error : ", err);
+      });
+  } else {
+    console.log("IPN Request Body Error : ", req.body.error);
+  }
 
   return res.status(200).send("IPN");
 };
