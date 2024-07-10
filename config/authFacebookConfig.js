@@ -11,6 +11,7 @@ const strategy = new FacebookStrategy(
     profileFields: ["email", "displayName"],
   },
   async (accessToken, refreshToken, profile, cb) => {
+    console.log(profile);
     let user = await User.findOne({
       facebookId: profile.id,
       email: profile._json.email,
@@ -26,7 +27,7 @@ const strategy = new FacebookStrategy(
       cb(null, response);
     } else {
       user = new User({
-        googleId: profile.id,
+        facebookId: profile.id,
         email: profile._json.email,
         name: profile._json.name,
       });

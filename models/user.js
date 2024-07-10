@@ -27,6 +27,7 @@ const userSchema = Schema(
       default: "user",
     },
     googleId: String,
+    facebookId: String,
   },
   { timestamps: true }
 );

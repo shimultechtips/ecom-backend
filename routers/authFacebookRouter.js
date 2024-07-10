@@ -19,7 +19,7 @@ router
   .route("/redirect")
   .get(passport.authenticate("facebook", { session: false }), (req, res) => {
     // console.log(req.user);
-    res.send(req.user);
+    res.redirect("http://localhost:3000/login/?token=" + req.user.token);
   });
 
 module.exports = router;
