@@ -196,30 +196,97 @@ module.exports.initPayment = async (req, res) => {
   return res.status(200).send(response);
 };
 
+module.exports.initPaymentOfCurrentOrders = async (req, res) => {
+  const orderId = req.params.id;
+  const userId = req.user._id;
+
+  const order = await Order.findOne({ _id: orderId, user: userId });
+
+  console.log(order);
+
+  const total_item = order.cartItems
+    .map((item) => item.count)
+    .reduce((a, b) => a + b, 0);
+
+  const payment = new PaymentSession(
+    true,
+    process.env.STORE_ID,
+    process.env.STORE_PASSWORD
+  );
+
+  // Set the urls
+  payment.setUrls({
+    success: "https://ecom-backend-topaz.vercel.app/api/payment/success", // If payment Succeed
+    fail: "https://ecom-backend-topaz.vercel.app/api/payment/fail", // If payment failed
+    cancel: "https://ecom-backend-topaz.vercel.app/api/payment/cancel", // If user cancel payment
+    ipn: "https://ecom-backend-topaz.vercel.app/api/payment/ipn", // SSLCommerz will send http post request in this link
+  });
+
+  // Set order details
+  payment.setOrderInfo({
+    total_amount: order.amountToBePaid, // Number field
+    currency: "BDT", // Must be three character string
+    tran_id: order.transaction_id, // Unique Transaction id
+    emi_option: 0, // 1 or 0
+
+    // multi_card_name: "internetbank", // Do not Use! If you do not customize the gateway list,
+    // allowed_bin: "371598,371599,376947,376948,376949", // Do not Use! If you do not control on transaction
+    // emi_max_inst_option: 3, // Max instalment Option
+    // emi_allow_only: 0, // Value is 1/0, if value is 1 then only EMI transaction is possible
+  });
+
+  // Set customer info
+  payment.setCusInfo({
+    name: req.user.name,
+    email: req.user.email,
+    add1: order.address.address1,
+    add2: order.address.address2,
+    city: order.address.city,
+    state: order.address.state,
+    postcode: order.address.postcode,
+    country: order.address.country,
+    phone: order.address.phone,
+    fax: order.address.phone,
+  });
+
+  // Set shipping info
+  payment.setShippingInfo({
+    method: "Courier", //Shipping method of the order. Example: YES or NO or Courier
+    num_item: total_item,
+    name: req.user.name,
+    add1: order.address.address1,
+    add2: order.address.address2,
+    city: order.address.city,
+    state: order.address.state,
+    postcode: order.address.postcode,
+    country: order.address.country,
+  });
+
+  // Set Product Profile
+  payment.setProductInfo({
+    product_name: "Bohubrihi E-Com Products",
+    product_category: "General",
+    product_profile: "general",
+  });
+
+  response = await payment.paymentInit();
+
+  if (response.status === "SUCCESS") {
+    order.sessionKey = response["sessionkey"];
+    order.gateWayURL = response["GatewayPageURL"];
+
+    try {
+      await order.save();
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  return res.status(200).send(response);
+};
+
 module.exports.paymentSuccess = async (req, res) => {
-  // res.sendFile(path.join(__basedir + "/public/success.html"));
-  //   const successFilePath = path.resolve(__basedir, "public", "success.html");
-  //   console.log("Success Path : ", successFilePath); // For debugging purposes
-  //   res.sendFile(successFilePath);
-
-  const successPage = `<div style="margin: 20px 0px; text-align: center">
-      <p style="font-size: 25px; color: green">Your Payment Was Successful!</p>
-      <a
-        style="
-          color: green;
-          text-decoration: none;
-          font-size: 20px;
-          border: 2px solid #ced4da;
-          border-radius: 10px;
-          padding: 10px;
-          font-weight: bold;
-        "
-        href="https://ecom-frontend-steel.vercel.app/user/dashboard"
-        >Go Back To Dashboard</a
-      >
-    </div>`;
-
-  res.send(successPage);
+  res.redirect("https://ecom-frontend-steel.vercel.app/success");
 };
 
 module.exports.paymentFail = async (req, res) => {
@@ -229,25 +296,26 @@ module.exports.paymentFail = async (req, res) => {
 
   // res.sendFile(path.join(__basedir + "/public/fail.html"));
 
-  const failPage = `<div style="margin: 20px 0px; text-align: center">
-      <p style="font-size: 25px; color: red">Your Payment Has Failed!</p>
-      <a
-        style="
-          color: green;
-          text-decoration: none;
-          font-size: 20px;
-          border: 2px solid #ced4da;
-          border-radius: 10px;
-          padding: 10px;
-          font-weight: bold;
-        "
-                href="https://ecom-frontend-steel.vercel.app/user/dashboard"
+  // const failPage = `<div style="margin: 20px 0px; text-align: center">
+  //     <p style="font-size: 25px; color: red">Your Payment Has Failed!</p>
+  //     <a
+  //       style="
+  //         color: green;
+  //         text-decoration: none;
+  //         font-size: 20px;
+  //         border: 2px solid #ced4da;
+  //         border-radius: 10px;
+  //         padding: 10px;
+  //         font-weight: bold;
+  //       "
+  //               href="https://ecom-frontend-steel.vercel.app/user/dashboard"
 
-        >Go Back To Dashboard</a
-      >
-    </div>`;
+  //       >Go Back To Dashboard</a
+  //     >
+  //   </div>`;
 
-  res.send(failPage);
+  // res.send(failPage);
+  res.redirect("https://ecom-frontend-steel.vercel.app/fail");
 };
 
 module.exports.paymentCancel = async (req, res) => {
@@ -255,22 +323,22 @@ module.exports.paymentCancel = async (req, res) => {
   // console.log(cancelFilePath); // For debugging purposes
   // res.sendFile(cancelFilePath);
 
-  const cancelPage = `<div style="margin: 20px 0px; text-align: center">
-      <p style="font-size: 25px; color: red">Your Payment Has Canceled!</p>
-      <a
-        style="
-          color: green;
-          text-decoration: none;
-          font-size: 20px;
-          border: 2px solid #ced4da;
-          border-radius: 10px;
-          padding: 10px;
-          font-weight: bold;
-        "
-        href="https://ecom-frontend-steel.vercel.app/user/dashboard"
-        >Go Back To Dashboard</a
-      >
-    </div>`;
-
-  res.send(cancelPage);
+  // const cancelPage = `<div style="margin: 20px 0px; text-align: center">
+  //       <p style="font-size: 25px; color: red">Your Payment Has Canceled!</p>
+  //       <a
+  //         style="
+  //           color: green;
+  //           text-decoration: none;
+  //           font-size: 20px;
+  //           border: 2px solid #ced4da;
+  //           border-radius: 10px;
+  //           padding: 10px;
+  //           font-weight: bold;
+  //         "
+  //         href="https://ecom-frontend-steel.vercel.app/user/dashboard"
+  //         >Go Back To Dashboard</a
+  //       >
+  //     </div>`;
+  //   res.send(cancelPage);
+  res.redirect("https://ecom-frontend-steel.vercel.app/cancel");
 };

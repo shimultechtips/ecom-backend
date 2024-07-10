@@ -5,10 +5,12 @@ const {
   paymentSuccess,
   paymentCancel,
   paymentFail,
+  initPaymentOfCurrentOrders,
 } = require("../controllers/paymentControllers");
 const authorize = require("../middlewares/authorize");
 
 router.route("/").get(authorize, initPayment);
+router.route("/currentorder/:id").get(authorize, initPaymentOfCurrentOrders);
 router.route("/ipn").post(ipn);
 router.route("/success").post(paymentSuccess);
 router.route("/fail").post(paymentFail);
