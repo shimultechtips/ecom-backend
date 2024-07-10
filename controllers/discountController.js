@@ -17,6 +17,18 @@ module.exports.getDiscount = async (req, res) => {
   }
 };
 
+module.exports.getDiscountAll = async (req, res) => {
+  const discounts = await Discount.find();
+
+  res.status(200).send(discounts);
+};
+
+module.exports.deleteDiscount = async (req, res) => {
+  const discounts = await Discount.deleteOne({ _id: req.params.id });
+
+  res.status(200).send(discounts);
+};
+
 module.exports.createDiscount = async (req, res) => {
   const discount = new Discount(req.body);
 
