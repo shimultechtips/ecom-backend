@@ -9,6 +9,8 @@ const orderHistoryRouter = require("../routers/orderHistoryRouter");
 const reviewRouter = require("../routers/reviewRouter");
 const discountRouter = require("../routers/discountRouter");
 const discountPercentageRouter = require("../routers/discountPercentageRouter");
+const authGoogleRouter = require("../routers/authGoogleRouter");
+const authFacebookRouter = require("../routers/authFacebookRouter");
 
 module.exports = (app) => {
   app.use("/api/user", userRouter);
@@ -22,4 +24,6 @@ module.exports = (app) => {
   app.use("/api/review", reviewRouter);
   app.use("/api/discount", discountRouter);
   app.use("/api/discountpercentage", discountPercentageRouter);
+  app.use("/api/auth/google", authGoogleRouter);
+  app.use("/api/auth/facebook", authFacebookRouter);
 };
